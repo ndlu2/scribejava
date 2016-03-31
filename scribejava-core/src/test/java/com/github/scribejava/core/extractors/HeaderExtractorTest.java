@@ -1,6 +1,7 @@
 package com.github.scribejava.core.extractors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import com.github.scribejava.core.exceptions.OAuthParametersMissingException;
@@ -24,16 +25,12 @@ public class HeaderExtractorTest {
     @Test
     public void shouldExtractStandardHeader() {
         final String header = extractor.extract(request);
-        try {
-            assertEquals("OAuth oauth_callback=\"http%3A%2F%2Fexample%2Fcallback\", "
-                    + "oauth_signature=\"OAuth-Signature\", oauth_consumer_key=\"AS%23%24%5E%2A%40%26\", "
-                    + "oauth_timestamp=\"123456\"", header);
-        } catch (AssertionError ae) {
-            //maybe this is OpenJDK 8? Different order of elements in HashMap while iterating'em.
-            assertEquals("OAuth oauth_signature=\"OAuth-Signature\", "
-                    + "oauth_callback=\"http%3A%2F%2Fexample%2Fcallback\", "
-                    + "oauth_consumer_key=\"AS%23%24%5E%2A%40%26\", oauth_timestamp=\"123456\"", header);
-        }
+        assertTrue(header.startsWith("OAuth"));
+        assertTrue(header.contains("oauth_callback=\"http%3A%2F%2Fexample%2Fcallback\""));
+        assertTrue(header.contains("oauth_signature=\"OAuth-Signature\""));
+        assertTrue(header.contains("oauth_consumer_key=\"AS%23%24%5E%2A%40%26\""));
+        assertTrue(header.contains("oauth_timestamp=\"123456\""));
+        assertEquals(4, header.split(",").length);
     }
 
     @Test(expected = IllegalArgumentException.class)
